@@ -14,9 +14,7 @@ const Home: NextPage = () => {
         setIsLoading(true)
         const order = await createOrder(amount.toString())
         setIsLoading(false)
-        window.open(order.links.checkoutLink, '_blank')
-        // console.log(order);
-        // setOrderUrl(order.links.checkoutLink)
+        setOrderUrl(order.links.checkoutLink)
       } catch (error) {
         
       }
@@ -37,6 +35,9 @@ const Home: NextPage = () => {
             {isLoading ? 'Cargando': 'Crear'}
             </button>
         </div>
+        {
+          orderUrl && <a className="p-3 bg-gray-200 rounded my-2 text-blue-400" href={orderUrl} target="_blank" rel="noopener noreferrer">Checkout</a>
+        }
         <div>
           <iframe src={orderUrl} frameBorder="0"></iframe>
         </div>
