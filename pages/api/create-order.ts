@@ -3,11 +3,13 @@ import axios from 'axios'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 type Data = {
-  name: string
+  token?: string;
+  order?: object;
+  message?: string;
 }
 
 
-const getToken = async () => {
+const getToken = async (): Promise<string> => {
   try {
     const { data: { access_token: accessToken } } = await axios.post('/1/auth/token', {
       "user_name": process.env.UALA_USER_NAME,
@@ -18,7 +20,7 @@ const getToken = async () => {
     return accessToken
   } catch (error) {
     console.log(error);
-    return false
+    throw error
   }
 }
 
@@ -31,21 +33,18 @@ const createOrder = async (amount: number) => {
     "callback_fail": `${process.env.BASE_URL}/fail`,
     "callback_success": `${process.env.BASE_URL}/success`,
   }
-  console.dir(data);
 
-  if (accessToken) {
-    try {
-      const { data: order } = await axios.post('/1/checkout', data, {
-        baseURL: process.env.UALA_API_URL, headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      return order
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    const { data: order } = await axios.post('/1/checkout', data, {
+      baseURL: process.env.UALA_API_URL, headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+    return order
+  } catch (error) {
+    console.log(error);
+    throw error
   }
-  return false
 }
 
 
@@ -54,13 +53,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  if (req.method === 'GET') {
-    const token = await getToken()
-    return res.status(201).json({ token })
+  try {
+    if (req.method === 'GET') {
+      const token = await getToken()
+      return res.status(201).json({ token })
+    }
+    const order = await createOrder(req.body.amount)
+    if (order) {
+      return res.status(201).json({ order })
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'error create credencials' })
   }
-  const order = await createOrder(req.body.amount)
-  if (order) {
-    return res.status(201).json({ order })
-  }
-  res.status(500).json({ message: 'error create credencials' })
 }
