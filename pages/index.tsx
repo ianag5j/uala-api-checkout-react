@@ -12,7 +12,7 @@ const Home: NextPage = () => {
     if (amount > 0) {
       try {
         setIsLoading(true)
-        const order = await createOrder(amount)
+        const order = await createOrder(amount.toString())
         setIsLoading(false)
         window.open(order.links.checkoutLink, '_blank')
         // console.log(order);
