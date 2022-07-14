@@ -7,17 +7,15 @@ const Home: NextPage = () => {
   const [orderUrl, setOrderUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const onClick = async () => {
-    const amountElement = document.getElementById('amount')
-    if (amountElement.value > 0) {
-
-      console.log(amountElement.value);
+    const amountElement = document.getElementById('amount') as HTMLInputElement
+    const amount = parseInt(amountElement.value, 10)
+    if (amount > 0) {
       try {
         setIsLoading(true)
-        const order = await createOrder(amountElement.value)
+        const order = await createOrder(amount)
         setIsLoading(false)
         window.open(order.links.checkoutLink, '_blank')
         // console.log(order);
-        
         // setOrderUrl(order.links.checkoutLink)
       } catch (error) {
         
@@ -40,7 +38,7 @@ const Home: NextPage = () => {
             </button>
         </div>
         <div>
-          <iframe src={orderUrl} frameborder="0"></iframe>
+          <iframe src={orderUrl} frameBorder="0"></iframe>
         </div>
       </main>
     </div>
